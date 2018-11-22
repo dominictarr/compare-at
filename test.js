@@ -1,7 +1,7 @@
 var tape = require('tape')
-var compareAt = require('./')
-
-var cmp = compareAt([['foo', 'bar']])
+var CompareAt = require('./')
+var paths = [['foo', 'bar']]
+var cmp = CompareAt([['foo', 'bar']])
 
 var expected = [
   null,
@@ -31,7 +31,7 @@ tape('compare each pair', function (t) {
 })
 
 tape('has path', function (t) {
-  t.deepEqual(expected.map(compareAt.hasPath(['foo', 'bar'])), [
+  t.deepEqual(expected.map(CompareAt.hasPath([['foo', 'bar']])), [
     false, false, false, false, false,
     true, true, true, true, true
   ])
@@ -39,7 +39,7 @@ tape('has path', function (t) {
 })
 
 tape('compare each pair', function (t) {
-  var input = expected.filter(compareAt.hasPath(['foo', 'bar']))
+  var input = expected.filter(CompareAt.hasPath(['foo', 'bar']))
   console.log(input)
   for(var i = 0; i < input.length; i++) {
     for(var j = 0; j < input.length; j++) {
@@ -52,12 +52,58 @@ tape('compare each pair', function (t) {
   t.end()
 })
 
-
-
 tape('sort array', function (t) {
   t.deepEqual(expected.slice().sort(shuffle).sort(cmp), expected)
   t.end()
 })
+
+var a = require('fs').readFileSync(
+  require('path').join(__dirname,'output.dljson'), 'utf8'
+).split(/\n\n/).filter(Boolean).map(JSON.parse)
+
+tape('real data', function (t) {
+//  console.log(a)
+  var paths = [['value','content','type'], ['value', 'timestamp']]
+  var compare = CompareAt(paths)
+  var has = CompareAt.hasPath(paths)
+  a.filter(has).sort(compare).forEach(function (e) {
+    console.log(e.value.content.type, e.value.timestamp)
+  })
+
+  t.end()
+})
+
+tape('compare to path', function (t) {
+  expected.forEach(function (object, i) {
+    var vp = CompareAt.getValuePath(object, paths)
+    var compareVP = CompareAt.createCompareValuePath(paths)
+    var compareAuto = CompareAt.createCompareAuto(paths)
+    var compareAt = CompareAt(paths)
+    if(vp[0] != undefined) {
+      t.deepEqual(expected.filter(function (v) {
+        return compareVP(v, vp) === 0
+      }), [expected[i]])
+
+      t.deepEqual(expected.filter(function (v) {
+        return compareAuto(v, vp) === 0
+      }), [expected[i]])
+
+      t.deepEqual(expected.filter(function (v) {
+        return compareAuto(v, CompareAt.valuePathToObject(vp, paths)) === 0
+      }), [expected[i]])
+
+      t.deepEqual(expected.filter(function (v) {
+        return compareAt(v, CompareAt.valuePathToObject(vp, paths)) === 0
+      }), [expected[i]])
+    }
+  })
+  t.end()
+})
+
+
+
+
+
 
 
 
