@@ -8,7 +8,7 @@
     "url": "git://github.com/dominictarr/compare-at.git"
   },
   "dependencies": {
-    "libnested": "^1.4.0",
+    "libnested": "^1.4.1",
     "typewiselite": "^1.0.0"
   },
   "devDependencies": {
