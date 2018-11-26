@@ -40,11 +40,7 @@ function compareValuePath (a, target, paths, cmp) {
   if(target.length != paths.length) throw new Error('target values must be same length as path, expected:'+path.length+' was:'+target.length)
   var path, a_v, b_v, result
   for(var i = 0; i < paths.length; i++) {
-    a_v = nested.get(a, paths[i]); b_v = target[i]
-    if(a_v == null || b_v == null)
-      return a_v == null ? b_v == null ? 0 : -1 : 1
-
-    if(result = compareIsObject(a_v, b_v, cmp))
+    if(result = cmp(nested.get(a, paths[i]), target[i]))
       return result
   }
   //if it made past the whole path, must be equal
@@ -111,12 +107,10 @@ exports.createCompareAuto = function (paths, cmp) {
   var compareAtValues = module.exports.createCompareValuePath(paths, cmp)
 
   return function (value, target) {
-    if(Array.isArray(target))
+    if(Array.isArray(target)) {
       return compareAtValues(value, target)
-    else
+    } else
       return compareAt(value, target)
   }
 }
-
-
 
