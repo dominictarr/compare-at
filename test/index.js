@@ -1,5 +1,5 @@
 var tape = require('tape')
-var CompareAt = require('./')
+var CompareAt = require('../')
 var paths = [['foo', 'bar']]
 var cmp = CompareAt([['foo', 'bar']])
 
@@ -75,6 +75,7 @@ tape('real data', function (t) {
 
 tape('compare to path', function (t) {
   expected.forEach(function (object, i) {
+    console.log(object, paths)
     var vp = CompareAt.getValuePath(object, paths)
     var compareVP = CompareAt.createCompareValuePath(paths)
     var compareAuto = CompareAt.createCompareAuto(paths)
@@ -99,13 +100,4 @@ tape('compare to path', function (t) {
   })
   t.end()
 })
-
-
-
-
-
-
-
-
-
 
